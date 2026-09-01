@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operational Waste Mapper | Harris Zahari Transformation Tools</title>
+  <style>
+    :root {
+      --navy-900: #0f172a;
+      --navy-800: #1e293b;
+      --navy-700: #334155;
+      --teal-700: #0f766e;
+      --teal-600: #0d9488;
+      --teal-500: #14b8a6;
+      --teal-50: #f0fdfa;
+      --bg-surface: #ffffff;
+      --bg-page: #f8fafc;
+      --border-light: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --amber-600: #d97706;
+      --amber-100: #fef3c7;
+      --red-600: #dc2626;
+      --red-100: #fee2e2;
+      --green-600: #16a34a;
+      --green-100: #dcfce7;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation */
+    header.app-header {
+      background-color: var(--navy-900);
+      color: #ffffff;
+      padding: 0.85rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--teal-600);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-sub {
+      font-size: 0.8rem;
+      color: var(--border-medium);
+      font-weight: 400;
+      margin-left: 0.5rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* Main Container & Tab System */
+    .app-container {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      flex: 1;
+    }
+
+    nav.tab-nav {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 2px solid var(--border-light);
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .tab-btn:hover {
+      color: var(--navy-900);
+    }
+
+    .tab-btn.active {
+      color: var(--teal-700);
+      border-bottom: 3px solid var(--teal-600);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Cards & Surfaces */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy-900);
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 1rem;
+      border-left: 4px solid var(--teal-600);
+    }
+
+    .metric-card.warning {
+      border-left-color: var(--amber-600);
+    }
+
+    .metric-card.danger {
+      border-left-color: var(--red-600);
+    }
+
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin: 0.25rem 0;
+    }
+
+    .metric-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* DOWNTIME Grid */
+    .downtime-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .downtime-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .downtime-tile:hover, .downtime-tile.selected {
+      border-color: var(--teal-600);
+      background-color: var(--teal-50);
+    }
+
+    .downtime-letter {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--navy-900);
+    }
+
+    .downtime-name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin: 0.2rem 0;
+    }
+
+    .downtime-count {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--teal-700);
+    }
+
+    /* Flow View */
+    .flow-scroller {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+
+    .flow-node {
+      flex: 0 0 240px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .flow-node-header {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 0.5rem;
+    }
+
+    .flow-bar-container {
+      margin: 0.5rem 0;
+    }
+
+    .flow-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .flow-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--border-light);
+      overflow: hidden;
+      display: flex;
+    }
+
+    .bar-work { background: var(--teal-600); }
+    .bar-wait { background: var(--amber-600); }
+
+    /* Tables */
+    .data-table-wrapper {
+      overflow-x: auto;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    table.data-table th {
+      background-color: var(--bg-page);
+      color: var(--navy-900);
+      padding: 0.75rem;
+      font-weight: 700;
+      border-bottom: 2px solid var(--border-medium);
+    }
+
+    table.data-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: top;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-conf-high { background: var(--green-100); color: var(--green-600); }
+    .badge-conf-med { background: var(--amber-100); color: var(--amber-600); }
+    .badge-conf-low { background: var(--red-100); color: var(--red-600); }
+
+    .badge-priority-immediate { background: var(--red-100); color: var(--red-600); }
+    .badge-priority-validate { background: var(--amber-100); color: var(--amber-600); }
+    .badge-priority-candidate { background: var(--teal-50); color: var(--teal-700); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--teal-600);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover { background-color: var(--teal-700); }
+
+    .btn-secondary {
+      background-color: var(--bg-surface);
+      color: var(--navy-900);
+      border-color: var(--border-medium);
+    }
+
+    .btn-secondary:hover { background-color: var(--bg-page); }
+
+    /* Forms */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--navy-900);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+      border: 1px solid var(--border-medium);
+      border-radius: 4px;
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--teal-600);
+    }
+
+    /* Print Stylesheet */
+    @media print {
+      header.app-header, nav.tab-nav, .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff;
+        color: #000000;
+      }
+      .app-container {
+        max-width: 100%;
+        padding: 0;
+      }
+      .tab-content {
+        display: none !important;
+      }
+      #tab-report {
+        display: block !important;
+      }
+      .card {
+        border: 1px solid #ccc;
+        box-shadow: none;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div>
+      <span class="brand-title">Operational Waste Mapper</span>
+      <span class="brand-sub">Harris Zahari Transformation Tools</span>
+    </div>
+    <div class="header-actions no-print">
+      <button class="btn btn-secondary" onclick="loadDemoScenario()">Load Demo Case</button>
+      <button class="btn btn-secondary" onclick="exportJSON()">Export JSON</button>
+      <button class="btn btn-primary" onclick="triggerPrint()">Print Report</button>
+    </div>
+  </header>
+
+  <div class="app-container">
+    
+    <nav class="tab-nav no-print">
+      <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+      <button class="tab-btn" onclick="switchTab('steps')">Process Steps</button>
+      <button class="tab-btn" onclick="switchTab('observations')">Waste Observations</button>
+      <button class="tab-btn" onclick="switchTab('opportunities')">Opportunities Backlog</button>
+      <button class="tab-btn" onclick="switchTab('report')">Executive Report</button>
+    </nav>
+
+    <section id="tab-overview" class="tab-content active">
+      
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Total Elapsed Time</div>
+          <div class="metric-value" id="metric-elapsed">0 min</div>
+          <div class="metric-meta" id="metric-steps-count">0 process steps</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Processing vs Waiting</div>
+          <div class="metric-value" id="metric-work-wait">0m / 0m</div>
+          <div class="metric-meta">Active touch time vs Queue delay</div>
+        </div>
+        <div class="metric-card warning">
+          <div class="metric-label">Flow Efficiency</div>
+          <div class="metric-value" id="metric-efficiency">0.0%</div>
+          <div class="metric-meta" id="metric-efficiency-conf">Confidence: Unassessed</div>
+        </div>
+        <div class="metric-card danger">
+          <div class="metric-label">Waste Observations</div>
+          <div class="metric-value" id="metric-waste-count">0</div>
+          <div class="metric-meta" id="metric-waste-priority">0 immediate attention</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">DOWNTIME Waste Profile</span>
+          <span class="metric-meta">Select a category to inspect register</span>
+        </div>
+        <div class="downtime-grid" id="downtime-tiles">
+          </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Process Flow & Time Distribution</span>
+          <span class="metric-meta">Work vs Waiting proportion per step</span>
+        </div>
+        <div class="flow-scroller" id="flow-timeline">
+          </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Leadership Attention Panel</span>
+        </div>
+        <div id="leadership-panel-content">
+          <p class="metric-meta">No critical operational exposures or severe delays identified yet.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="tab-steps" class="tab-content">
+      <div class="card no-print">
+        <div class="card-header">
+          <span class="card-title">Add Process Step</span>
+        </div>
+        <form id="form-step" onsubmit="handleSaveStep(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="step-name">Step Name</label>
+              <input type="text" id="step-name" class="form-control" placeholder="e.g., Manager validation" required>
+            </div>
+            <div class="form-group">
+              <label for="step-role">Responsible Role</label>
+              <input type="text" id="step-role" class="form-control" placeholder="e.g., Finance Manager" required>
+            </div>
+            <div class="form-group">
+              <label for="step-work">Processing Time (min)</label>
+              <input type="number" id="step-work" class="form-control" min="0" value="5" required>
+            </div>
+            <div class="form-group">
+              <label for="step-wait">Waiting Time (min)</label>
+              <input type="number" id="step-wait" class="form-control" min="0" value="60" required>
+            </div>
+            <div class="form-group">
+              <label for="step-handoff">Handoff Destination</label>
+              <input type="text" id="step-handoff" class="form-control" placeholder="e.g., Procurement Team">
+            </div>
+            <div class="form-group">
+              <label for="step-evidence">Evidence Source</label>
+              <input type="text" id="step-evidence" class="form-control" placeholder="e.g., System log, observation">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Step</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Process-Step Register</span>
+        </div>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Step Name</th>
+                <th>Role</th>
+                <th>Processing Time</th>
+                <th>Waiting Time</th>
+                <th>Handoff Target</th>
+                <th>Evidence Source</th>
+              </tr>
+            </thead>
+            <tbody id="steps-table-body">
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-observations" class="tab-content">
+      <div class="card no-print">
+        <div class="card-header">
+          <span class="card-title">Record Waste Observation</span>
+        </div>
+        <form id="form-observation" onsubmit="handleSaveObservation(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="obs-step">Process Step</label>
+              <select id="obs-step" class="form-control" required>
+                </select>
+            </div>
+            <div class="form-group">
+              <label for="obs-category">DOWNTIME Category</label>
+              <select id="obs-category" class="form-control" required>
+                <option value="Defects">Defects (Errors, corrections, rework)</option>
+                <option value="Overproduction">Overproduction (Produced too early or in excess)</option>
+                <option value="Waiting">Waiting (People, system, approvals queued)</option>
+                <option value="Non-utilized talent">Non-utilized talent (Skills or authority underused)</option>
+                <option value="Transportation">Transportation (Unnecessary file/material movement)</option>
+                <option value="Inventory">Inventory (Backlog, excess open cases)</option>
+                <option value="Motion">Motion (Digital or physical searching, switching)</option>
+                <option value="Extra processing">Extra processing (Duplicate entries, redundant steps)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="obs-tag">Secondary Service Tag</label>
+              <select id="obs-tag" class="form-control">
+                <option value="Approval delay">Approval delay</option>
+                <option value="Handoff failure">Handoff failure</option>
+                <option value="Duplicate data entry">Duplicate data entry</option>
+                <option value="System switching">System switching</option>
+                <option value="Unclear ownership">Unclear ownership</option>
+                <option value="Information defect">Information defect</option>
+                <option value="Queue buildup">Queue buildup</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="obs-confidence">Evidence Confidence</label>
+              <select id="obs-confidence" class="form-control" required>
+                <option value="High">High (Direct system timestamp/log)</option>
+                <option value="Medium">Medium (Observed sample/interview)</option>
+                <option value="Low">Low (Unverified estimate)</option>
+                <option value="Missing">Missing (Pure assumption)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="obs-condition">Observed Condition (What actually happens?)</label>
+            <input type="text" id="obs-condition" class="form-control" placeholder="e.g., Requests sit without action in queue" required>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="obs-effect">Operational Effect</label>
+              <input type="text" id="obs-effect" class="form-control" placeholder="e.g., Adds 180 min to lead time">
+            </div>
+            <div class="form-group">
+              <label for="obs-cause">Suspected Cause (Hypothesis, not proven fact)</label>
+              <input type="text" id="obs-cause" class="form-control" placeholder="e.g., Approvers receive no direct notification">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Record Observation</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Observation Register</span>
+        </div>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Step</th>
+                <th>Category / Tag</th>
+                <th>Observed Condition</th>
+                <th>Operational Effect</th>
+                <th>Suspected Cause</th>
+                <th>Evidence Confidence</th>
+              </tr>
+            </thead>
+            <tbody id="obs-table-body">
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-opportunities" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Improvement Hypotheses Backlog</span>
+        </div>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Priority</th>
+                <th>Problem Addressed</th>
+                <th>Proposed Experiment / Hypothesis</th>
+                <th>Expected Operational Gain</th>
+                <th>Validation Method</th>
+              </tr>
+            </thead>
+            <tbody id="opps-table-body">
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-report" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Executive Process Waste Assessment Brief</span>
+          <span class="metric-meta" id="report-date">Generated: September 2026</span>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--navy-900);">1. Process Boundary & Scope</h4>
+          <p class="metric-meta" id="report-boundary">Purchase requisition to purchase order issuance.</p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--navy-900);">2. Flow Profile Summary</h4>
+          <div class="metrics-grid" style="margin-top: 0.5rem;">
+            <div class="metric-card">
+              <div class="metric-label">Flow Efficiency</div>
+              <div class="metric-value" id="rep-efficiency">0.0%</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Total Lead Time</div>
+              <div class="metric-value" id="rep-lead-time">0 min</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Total Waiting Delay</div>
+              <div class="metric-value" id="rep-wait-time">0 min</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--navy-900);">3. Priority Investigation Targets</h4>
+          <div id="report-priority-targets">
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-light); font-size: 0.75rem; color: var(--text-muted);">
+          Operational Waste Mapper | Harris Zahari Transformation Tools | Method limitation: Estimated time losses represent potential flow friction, not confirmed financial savings.
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // State Schema
+    let state = {
+      metadata: {
+        processName: "Purchase Requisition to PO",
+        startPoint: "Requisition drafted",
+        endPoint: "PO transmitted to vendor",
+        timeUnit: "minutes"
+      },
+      steps: [],
+      observations: []
+    };
+
+    const DOWNTIME_CATEGORIES = [
+      { key: "Defects", name: "Defects" },
+      { key: "Overproduction", name: "Overproduction" },
+      { key: "Waiting", name: "Waiting" },
+      { key: "Non-utilized talent", name: "Non-utilized Talent" },
+      { key: "Transportation", name: "Transportation" },
+      { key: "Inventory", name: "Inventory" },
+      { key: "Motion", name: "Motion" },
+      { key: "Extra processing", name: "Extra Processing" }
+    ];
+
+    // Navigation Tab Controller
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+      
+      const targetContent = document.getElementById(`tab-${tabId}`);
+      if (targetContent) targetContent.classList.add('active');
+
+      renderAll();
+    }
+
+    // Step Operations
+    function handleSaveStep(e) {
+      e.preventDefault();
+      const newStep = {
+        id: "step-" + Date.now(),
+        order: state.steps.length + 1,
+        name: document.getElementById('step-name').value,
+        role: document.getElementById('step-role').value,
+        workTime: parseFloat(document.getElementById('step-work').value) || 0,
+        waitTime: parseFloat(document.getElementById('step-wait').value) || 0,
+        handoff: document.getElementById('step-handoff').value,
+        evidence: document.getElementById('step-evidence').value
+      };
+      state.steps.push(newStep);
+      document.getElementById('form-step').reset();
+      renderAll();
+    }
+
+    // Observation Operations
+    function handleSaveObservation(e) {
+      e.preventDefault();
+      const newObs = {
+        id: "obs-" + Date.now(),
+        stepId: document.getElementById('obs-step').value,
+        category: document.getElementById('obs-category').value,
+        tag: document.getElementById('obs-tag').value,
+        confidence: document.getElementById('obs-confidence').value,
+        condition: document.getElementById('obs-condition').value,
+        effect: document.getElementById('obs-effect').value,
+        cause: document.getElementById('obs-cause').value
+      };
+      state.observations.push(newObs);
+      document.getElementById('form-observation').reset();
+      renderAll();
+    }
+
+    // Calculations & Rendering
+    function renderAll() {
+      // Step selector updates
+      const stepSelect = document.getElementById('obs-step');
+      stepSelect.innerHTML = state.steps.map(s => `<option value="${s.id}">${s.order}. ${s.name}</option>`).join('');
+
+      // Aggregate calculations
+      const totalWork = state.steps.reduce((acc, s) => acc + s.workTime, 0);
+      const totalWait = state.steps.reduce((acc, s) => acc + s.waitTime, 0);
+      const totalElapsed = totalWork + totalWait;
+      const efficiency = totalElapsed > 0 ? ((totalWork / totalElapsed) * 100).toFixed(1) : 0.0;
+
+      // Update Overview metrics
+      document.getElementById('metric-elapsed').innerText = `${totalElapsed} min`;
+      document.getElementById('metric-steps-count').innerText = `${state.steps.length} process steps`;
+      document.getElementById('metric-work-wait').innerText = `${totalWork}m / ${totalWait}m`;
+      document.getElementById('metric-efficiency').innerText = `${efficiency}%`;
+      document.getElementById('metric-waste-count').innerText = state.observations.length;
+
+      // Render DOWNTIME tiles
+      const downtimeContainer = document.getElementById('downtime-tiles');
+      downtimeContainer.innerHTML = DOWNTIME_CATEGORIES.map(cat => {
+        const count = state.observations.filter(o => o.category === cat.key).length;
+        return `
+          <div class="downtime-tile">
+            <div class="downtime-letter">${cat.key.charAt(0)}</div>
+            <div class="downtime-name">${cat.name}</div>
+            <div class="downtime-count">${count}</div>
+          </div>
+        `;
+      }).join('');
+
+      // Render Horizontal Flow
+      const flowContainer = document.getElementById('flow-timeline');
+      if (state.steps.length === 0) {
+        flowContainer.innerHTML = `<div class="metric-meta">No steps recorded. Add process steps to view the timeline.</div>`;
+      } else {
+        flowContainer.innerHTML = state.steps.map(s => {
+          const stepTotal = s.workTime + s.waitTime;
+          const workPct = stepTotal > 0 ? (s.workTime / stepTotal) * 100 : 50;
+          const waitPct = stepTotal > 0 ? (s.waitTime / stepTotal) * 100 : 50;
+          const stepObs = state.observations.filter(o => o.stepId === s.id).length;
+          return `
+            <div class="flow-node">
+              <div class="flow-node-header">${s.order}. ${s.name}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${s.role}</div>
+              <div class="flow-bar-container">
+                <div class="flow-bar-label">
+                  <span>Touch: ${s.workTime}m</span>
+                  <span>Wait: ${s.waitTime}m</span>
+                </div>
+                <div class="flow-bar">
+                  <div class="bar-work" style="width: ${workPct}%"></div>
+                  <div class="bar-wait" style="width: ${waitPct}%"></div>
+                </div>
+              </div>
+              <div style="font-size:0.75rem; font-weight:600; color:var(--teal-700);">
+                ${stepObs} observations
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Steps Table
+      const stepsTable = document.getElementById('steps-table-body');
+      stepsTable.innerHTML = state.steps.map(s => `
+        <tr>
+          <td>${s.order}</td>
+          <td><strong>${s.name}</strong></td>
+          <td>${s.role}</td>
+          <td>${s.workTime} min</td>
+          <td>${s.waitTime} min</td>
+          <td>${s.handoff || 'None'}</td>
+          <td>${s.evidence || 'Direct observation'}</td>
+        </tr>
+      `).join('');
+
+      // Render Observations Table
+      const obsTable = document.getElementById('obs-table-body');
+      obsTable.innerHTML = state.observations.map(o => {
+        const step = state.steps.find(s => s.id === o.stepId);
+        const stepLabel = step ? `${step.order}. ${step.name}` : 'Unlinked';
+        return `
+          <tr>
+            <td><strong>${stepLabel}</strong></td>
+            <td>${o.category}<br><small style="color:var(--text-muted);">${o.tag}</small></td>
+            <td>${o.condition}</td>
+            <td>${o.effect}</td>
+            <td>${o.cause}</td>
+            <td><span class="badge badge-conf-${o.confidence.toLowerCase()}">${o.confidence}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+      // Update Report elements
+      document.getElementById('rep-efficiency').innerText = `${efficiency}%`;
+      document.getElementById('rep-lead-time').innerText = `${totalElapsed} min`;
+      document.getElementById('rep-wait-time').innerText = `${totalWait} min`;
+    }
+
+    // Demo Scenario Loader
+    function loadDemoScenario() {
+      state.steps = [
+        { id: "s1", order: 1, name: "Requisition Submission", role: "Requester", workTime: 5, waitTime: 180, handoff: "Line Manager", evidence: "System log" },
+        { id: "s2", order: 2, name: "Manager Approval", role: "Line Manager", workTime: 8, waitTime: 420, handoff: "Procurement", evidence: "System log" },
+        { id: "s3", order: 3, name: "Procurement Validation", role: "Procurement Officer", workTime: 12, waitTime: 90, handoff: "Vendor", evidence: "Work sample" },
+        { id: "s4", order: 4, name: "PO Generation", role: "Procurement Officer", workTime: 6, waitTime: 0, handoff: "ERP", evidence: "System log" }
+      ];
+
+      state.observations = [
+        { id: "o1", stepId: "s1", category: "Waiting", tag: "Approval delay", confidence: "High", condition: "Request sits unassigned in portal queue", effect: "Adds 3 hours lead time before first touch", cause: "No notification alert sent to manager" },
+        { id: "o2", stepId: "s2", category: "Extra processing", tag: "Duplicate data entry", confidence: "Medium", condition: "Approver manually re-enters cost center code into secondary spreadsheet", effect: "Consumes 8 minutes per batch", cause: "Two disconnected systems in use" }
+      ];
+
+      renderAll();
+    }
+
+    // Utility actions
+    function triggerPrint() {
+      window.print();
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "operational_waste_mapper.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    // Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAll();
+    });
+  </script>
+</body>
+</html>
