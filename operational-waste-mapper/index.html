@@ -416,7 +416,9 @@
       <span class="brand-sub">Harris Zahari Transformation Tools</span>
     </div>
     <div class="header-actions no-print">
-      <button class="btn btn-secondary" onclick="loadDemoScenario()">Load Demo Case</button>
+      <button class="btn btn-secondary" onclick="loadDemoScenario()">Load Demo</button>
+      <button class="btn btn-secondary" onclick="exportStepsCSV()">Export Steps CSV</button>
+      <button class="btn btn-secondary" onclick="exportObservationsCSV()">Export Observations CSV</button>
       <button class="btn btn-secondary" onclick="exportJSON()">Export JSON</button>
       <button class="btn btn-primary" onclick="triggerPrint()">Print Report</button>
     </div>
@@ -703,7 +705,56 @@
     </section>
 
   </div>
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (imported && Array.isArray(imported.steps) && Array.isArray(imported.observations)) {
+        state = imported;
+        saveState();
+        renderAll();
+        alert("Session data restored successfully.");
+      } else {
+        alert("Invalid file format. Must be an Operational Waste Mapper JSON file.");
+      }
+    } catch (err) {
+      alert("Error reading JSON file: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ""; // Reset input
+}
+
+function resetAllData() {
+  if (confirm("Are you sure you want to clear all steps and observations? This cannot be undone.")) {
+    state = structuredClone(defaultState);
+    saveState();
+    renderAll();
+  }
+}
+
+  function moveStep(stepId, direction) {
+  const index = state.steps.findIndex(s => s.id === stepId);
+  if (index === -1) return;
+
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= state.steps.length) return;
+
+  // Swap elements
+  const temp = state.steps[index];
+  state.steps[index] = state.steps[targetIndex];
+  state.steps[targetIndex] = temp;
+
+  // Re-index order numbers
+  state.steps.forEach((s, idx) => { s.order = idx + 1; });
+
+  saveState();
+  renderAll();
+}
  <script>
     // Storage Key
     const STORAGE_KEY = "owm_app_state_v1";
@@ -949,13 +1000,20 @@
       }
 
       // 7. Render Process-Steps Register Table
+      // 7. Render Process-Steps Register Table
       const stepsTable = document.getElementById('steps-table-body');
       if (state.steps.length === 0) {
         stepsTable.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No process steps defined. Use the form above to add steps.</td></tr>`;
       } else {
-        stepsTable.innerHTML = state.steps.map(s => `
+        stepsTable.innerHTML = state.steps.map((s, idx) => `
           <tr>
-            <td>${s.order}</td>
+            <td>
+              <span style="font-weight:700;">${s.order}</span>
+              <div class="no-print" style="display:inline-flex; gap:2px; margin-left:6px;">
+                <button class="btn btn-secondary" style="padding:1px 5px; font-size:0.7rem;" onclick="moveStep('${s.id}', -1)" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                <button class="btn btn-secondary" style="padding:1px 5px; font-size:0.7rem;" onclick="moveStep('${s.id}', 1)" ${idx === state.steps.length - 1 ? 'disabled' : ''}>↓</button>
+              </div>
+            </td>
             <td><strong>${s.name}</strong></td>
             <td>${s.role}</td>
             <td>${s.workTime} min</td>
