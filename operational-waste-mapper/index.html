@@ -689,7 +689,7 @@
         
         <div style="margin-bottom: 1.5rem;">
           <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--navy-900);">1. Process Boundary & Scope</h4>
-          <p class="metric-meta" id="report-boundary">Purchase requisition to purchase order issuance.</p>
+          <p class="metric-meta" id="report-boundary">Purchase requisition drafted in portal to approved PO dispatched to vendor.</p>
         </div>
 
         <div style="margin-bottom: 1.5rem;">
@@ -733,8 +733,8 @@
     const defaultState = {
       metadata: {
         processName: "Purchase Requisition to PO",
-        startPoint: "Requisition drafted",
-        endPoint: "PO transmitted to vendor",
+        startPoint: "Requisition drafted in portal",
+        endPoint: "Approved PO dispatched to vendor",
         timeUnit: "minutes"
       },
       steps: [],
@@ -1080,18 +1080,92 @@
       }
     }
 
-    // Demo Scenario Loader
+    // Demonstration Scenario: Purchase Requisition to Purchase Order (PR-to-PO)
     function loadDemoScenario() {
+      state.metadata = {
+        processName: "Purchase Requisition to Purchase Order (PR-to-PO)",
+        organization: "Enterprise Supply Chain Operations",
+        processOwner: "Head of Procurement Operations",
+        assessor: "Harris Zahari",
+        observationDate: "2026-09-02",
+        startPoint: "Requisition drafted in portal",
+        endPoint: "Approved PO dispatched to vendor",
+        demandVolume: "450 requisitions / month",
+        timeUnit: "minutes"
+      };
+
       state.steps = [
-        { id: "s1", order: 1, name: "Requisition Submission", role: "Requester", workTime: 5, waitTime: 180, handoff: "Line Manager", evidence: "System log" },
-        { id: "s2", order: 2, name: "Manager Approval", role: "Line Manager", workTime: 8, waitTime: 420, handoff: "Procurement", evidence: "System log" },
-        { id: "s3", order: 3, name: "Procurement Validation", role: "Procurement Officer", workTime: 12, waitTime: 90, handoff: "Vendor", evidence: "Work sample" },
-        { id: "s4", order: 4, name: "PO Generation", role: "Procurement Officer", workTime: 6, waitTime: 0, handoff: "ERP", evidence: "System log" }
+        { id: "s1", order: 1, name: "Requisition Submission", role: "Requester", workTime: 10, waitTime: 240, handoff: "Line Manager", evidence: "ERP submission timestamp" },
+        { id: "s2", order: 2, name: "Completeness & Code Check", role: "Admin Officer", workTime: 8, waitTime: 180, handoff: "Line Manager", evidence: "Work sample audit" },
+        { id: "s3", order: 3, name: "Line Manager Approval", role: "Department Manager", workTime: 5, waitTime: 1440, handoff: "Finance Controller", evidence: "Approval log" },
+        { id: "s4", order: 4, name: "Budget & GL Validation", role: "Finance Controller", workTime: 15, waitTime: 720, handoff: "Sourcing Specialist", evidence: "ERP ledger report" },
+        { id: "s5", order: 5, name: "Procurement Review & Sourcing", role: "Sourcing Specialist", workTime: 35, waitTime: 480, handoff: "Procurement Lead", evidence: "Direct observation & time study" },
+        { id: "s6", order: 6, name: "Vendor Selection & Quotation Matching", role: "Procurement Lead", workTime: 20, waitTime: 360, handoff: "Procurement Officer", evidence: "Quotation registry" },
+        { id: "s7", order: 7, name: "PO Generation & Dispatch", role: "Procurement Officer", workTime: 12, waitTime: 120, handoff: "Vendor & Requester", evidence: "System log" },
+        { id: "s8", order: 8, name: "Requester & Vendor Acknowledgment", role: "Procurement Officer", workTime: 5, waitTime: 0, handoff: "Completed Flow", evidence: "Email notification log" }
       ];
 
       state.observations = [
-        { id: "o1", stepId: "s1", category: "Waiting", tag: "Approval delay", confidence: "High", condition: "Request sits unassigned in portal queue", effect: "Adds 3 hours lead time before first touch", cause: "No notification alert sent to manager" },
-        { id: "o2", stepId: "s2", category: "Extra processing", tag: "Duplicate data entry", confidence: "Medium", condition: "Approver manually re-enters cost center code into secondary spreadsheet", effect: "Consumes 8 minutes per batch", cause: "Two disconnected systems in use" }
+        {
+          id: "o1",
+          stepId: "s1",
+          category: "Defects",
+          tag: "Information defect",
+          confidence: "High",
+          condition: "Requesters submit forms with missing GL codes or vague line item descriptions (28% rework rate).",
+          effect: "Causes immediate kickback or admin review delays averaging 4 hours.",
+          cause: "Input portal lacks mandatory validation checks and dynamic item catalogs."
+        },
+        {
+          id: "o2",
+          stepId: "s2",
+          category: "Extra processing",
+          tag: "Duplicate data entry",
+          confidence: "High",
+          condition: "Admin manually re-keys PR details into an internal tracking spreadsheet.",
+          effect: "Consumes 8 minutes per transaction across 450 requests monthly (~60 staff hours/month).",
+          cause: "Department lacks trust in core ERP status dashboard visibility."
+        },
+        {
+          id: "o3",
+          stepId: "s3",
+          category: "Waiting",
+          tag: "Approval delay",
+          confidence: "High",
+          condition: "PRs sit idle in manager approval queues averaging 24 to 48 hours.",
+          effect: "Consumes 40% of total process lead time.",
+          cause: "Managers receive no consolidated batch reminders and approval threshold limits are too low."
+        },
+        {
+          id: "o4",
+          stepId: "s4",
+          category: "Motion",
+          tag: "System switching",
+          confidence: "Medium",
+          condition: "Finance validator toggles across 3 disconnected software applications to confirm budget availability.",
+          effect: "Adds 10 minutes of manual lookups and screen toggling per check.",
+          cause: "Accounting and procurement databases are not integrated."
+        },
+        {
+          id: "o5",
+          stepId: "s5",
+          category: "Non-utilized talent",
+          tag: "Unclear ownership",
+          confidence: "Medium",
+          condition: "Senior sourcing specialists spend 50% of their shift chasing routine transaction approvals rather than strategic supplier contracting.",
+          effect: "Depresses team productivity and strategic supplier negotiation capacity.",
+          cause: "Lack of triage tiers between standard recurring orders and high-value strategic purchases."
+        },
+        {
+          id: "o6",
+          stepId: "s6",
+          category: "Overproduction",
+          tag: "Queue buildup",
+          confidence: "Low",
+          condition: "Quotations for routine, catalog-standard items under RM 2,000 are re-solicited from 3 suppliers every time.",
+          effect: "Generates unnecessary quotation reviews and 6 hours of queue time.",
+          cause: "Blanket threshold policy applied without distinguishing preferred vendor rate agreements."
+        }
       ];
 
       saveState();
