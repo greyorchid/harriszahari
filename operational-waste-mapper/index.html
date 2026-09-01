@@ -704,9 +704,12 @@
 
   </div>
 
-  <script>
-    // State Schema
-    let state = {
+ <script>
+    // Storage Key
+    const STORAGE_KEY = "owm_app_state_v1";
+
+    // Default Initial State
+    const defaultState = {
       metadata: {
         processName: "Purchase Requisition to PO",
         startPoint: "Requisition drafted",
@@ -716,6 +719,8 @@
       steps: [],
       observations: []
     };
+
+    let state = loadState();
 
     const DOWNTIME_CATEGORIES = [
       { key: "Defects", name: "Defects" },
@@ -728,12 +733,34 @@
       { key: "Extra processing", name: "Extra Processing" }
     ];
 
+    // Local Storage Helpers
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (err) {
+        console.error("Failed to save state to localStorage", err);
+      }
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? JSON.parse(saved) : structuredClone(defaultState);
+      } catch (err) {
+        console.error("Failed to read localStorage, reverting to default", err);
+        return structuredClone(defaultState);
+      }
+    }
+
     // Navigation Tab Controller
     function switchTab(tabId) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
       
-      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => {
+        const target = b.getAttribute('onclick') || '';
+        return target.includes(tabId);
+      });
       if (activeBtn) activeBtn.classList.add('active');
       
       const targetContent = document.getElementById(`tab-${tabId}`);
@@ -748,56 +775,107 @@
       const newStep = {
         id: "step-" + Date.now(),
         order: state.steps.length + 1,
-        name: document.getElementById('step-name').value,
-        role: document.getElementById('step-role').value,
+        name: document.getElementById('step-name').value.trim(),
+        role: document.getElementById('step-role').value.trim(),
         workTime: parseFloat(document.getElementById('step-work').value) || 0,
         waitTime: parseFloat(document.getElementById('step-wait').value) || 0,
-        handoff: document.getElementById('step-handoff').value,
-        evidence: document.getElementById('step-evidence').value
+        handoff: document.getElementById('step-handoff').value.trim(),
+        evidence: document.getElementById('step-evidence').value.trim()
       };
       state.steps.push(newStep);
       document.getElementById('form-step').reset();
+      saveState();
+      renderAll();
+    }
+
+    function deleteStep(stepId) {
+      // Remove step
+      state.steps = state.steps.filter(s => s.id !== stepId);
+      // Re-index remaining steps
+      state.steps.forEach((s, idx) => { s.order = idx + 1; });
+      // Remove orphan observations linked to deleted step
+      state.observations = state.observations.filter(o => o.stepId !== stepId);
+      saveState();
       renderAll();
     }
 
     // Observation Operations
     function handleSaveObservation(e) {
       e.preventDefault();
+      const stepId = document.getElementById('obs-step').value;
+      if (!stepId) {
+        alert("Please create at least one process step before adding observations.");
+        return;
+      }
+
       const newObs = {
         id: "obs-" + Date.now(),
-        stepId: document.getElementById('obs-step').value,
+        stepId: stepId,
         category: document.getElementById('obs-category').value,
         tag: document.getElementById('obs-tag').value,
         confidence: document.getElementById('obs-confidence').value,
-        condition: document.getElementById('obs-condition').value,
-        effect: document.getElementById('obs-effect').value,
-        cause: document.getElementById('obs-cause').value
+        condition: document.getElementById('obs-condition').value.trim(),
+        effect: document.getElementById('obs-effect').value.trim(),
+        cause: document.getElementById('obs-cause').value.trim()
       };
       state.observations.push(newObs);
       document.getElementById('form-observation').reset();
+      saveState();
       renderAll();
+    }
+
+    function deleteObservation(obsId) {
+      state.observations = state.observations.filter(o => o.id !== obsId);
+      saveState();
+      renderAll();
+    }
+
+    // Priority Assessment Engine
+    function calculatePriority(obs) {
+      const isSevere = obs.category === "Defects" || obs.tag === "Approval delay";
+      if (isSevere && (obs.confidence === "High" || obs.confidence === "Medium")) {
+        return { label: "Immediate Attention", class: "badge-priority-immediate" };
+      }
+      if (obs.confidence === "Low" || obs.confidence === "Missing") {
+        return { label: "Validate Urgently", class: "badge-priority-validate" };
+      }
+      return { label: "Improvement Candidate", class: "badge-priority-candidate" };
     }
 
     // Calculations & Rendering
     function renderAll() {
-      // Step selector updates
+      // 1. Update Step Selector in Observation Form
       const stepSelect = document.getElementById('obs-step');
-      stepSelect.innerHTML = state.steps.map(s => `<option value="${s.id}">${s.order}. ${s.name}</option>`).join('');
+      if (state.steps.length === 0) {
+        stepSelect.innerHTML = `<option value="">No steps available</option>`;
+      } else {
+        stepSelect.innerHTML = state.steps.map(s => `<option value="${s.id}">${s.order}. ${s.name}</option>`).join('');
+      }
 
-      // Aggregate calculations
+      // 2. Aggregate Calculations
       const totalWork = state.steps.reduce((acc, s) => acc + s.workTime, 0);
       const totalWait = state.steps.reduce((acc, s) => acc + s.waitTime, 0);
       const totalElapsed = totalWork + totalWait;
-      const efficiency = totalElapsed > 0 ? ((totalWork / totalElapsed) * 100).toFixed(1) : 0.0;
+      const efficiency = totalElapsed > 0 ? ((totalWork / totalElapsed) * 100).toFixed(1) : "0.0";
 
-      // Update Overview metrics
+      // Count immediate priorities
+      const immediateCount = state.observations.filter(o => calculatePriority(o).label === "Immediate Attention").length;
+
+      // 3. Update Metrics Grid
       document.getElementById('metric-elapsed').innerText = `${totalElapsed} min`;
       document.getElementById('metric-steps-count').innerText = `${state.steps.length} process steps`;
       document.getElementById('metric-work-wait').innerText = `${totalWork}m / ${totalWait}m`;
       document.getElementById('metric-efficiency').innerText = `${efficiency}%`;
+      
+      const confLevel = state.observations.some(o => o.confidence === "Missing" || o.confidence === "Low") 
+        ? "Confidence: Low (Unverified steps)" 
+        : (state.observations.length > 0 ? "Confidence: Verified sample" : "Confidence: Unassessed");
+      document.getElementById('metric-efficiency-conf').innerText = confLevel;
+      
       document.getElementById('metric-waste-count').innerText = state.observations.length;
+      document.getElementById('metric-waste-priority').innerText = `${immediateCount} immediate attention`;
 
-      // Render DOWNTIME tiles
+      // 4. Render DOWNTIME Summary Tiles
       const downtimeContainer = document.getElementById('downtime-tiles');
       downtimeContainer.innerHTML = DOWNTIME_CATEGORIES.map(cat => {
         const count = state.observations.filter(o => o.category === cat.key).length;
@@ -810,10 +888,10 @@
         `;
       }).join('');
 
-      // Render Horizontal Flow
+      // 5. Render Horizontal Process Flow
       const flowContainer = document.getElementById('flow-timeline');
       if (state.steps.length === 0) {
-        flowContainer.innerHTML = `<div class="metric-meta">No steps recorded. Add process steps to view the timeline.</div>`;
+        flowContainer.innerHTML = `<div class="metric-meta" style="padding:1rem 0;">No steps recorded. Add process steps in the register.</div>`;
       } else {
         flowContainer.innerHTML = state.steps.map(s => {
           const stepTotal = s.workTime + s.waitTime;
@@ -823,7 +901,7 @@
           return `
             <div class="flow-node">
               <div class="flow-node-header">${s.order}. ${s.name}</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">${s.role}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">${s.role}</div>
               <div class="flow-bar-container">
                 <div class="flow-bar-label">
                   <span>Touch: ${s.workTime}m</span>
@@ -842,41 +920,123 @@
         }).join('');
       }
 
-      // Render Steps Table
+      // 6. Leadership Attention Panel
+      const leadershipPanel = document.getElementById('leadership-panel-content');
+      const urgentObs = state.observations.filter(o => {
+        const p = calculatePriority(o);
+        return p.label === "Immediate Attention" || p.label === "Validate Urgently";
+      });
+
+      if (urgentObs.length === 0) {
+        leadershipPanel.innerHTML = `<p class="metric-meta">No critical operational exposures or severe bottlenecks identified.</p>`;
+      } else {
+        leadershipPanel.innerHTML = urgentObs.map(o => {
+          const step = state.steps.find(s => s.id === o.stepId);
+          const stepName = step ? `${step.order}. ${step.name}` : "General Process";
+          const prio = calculatePriority(o);
+          return `
+            <div style="padding: 0.65rem 0; border-bottom: 1px solid var(--border-light); display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <strong>${stepName}:</strong> ${o.condition}
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                  Operational Impact: ${o.effect || 'Unspecified'} | Evidence: ${o.confidence}
+                </div>
+              </div>
+              <span class="badge ${prio.class}">${prio.label}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 7. Render Process-Steps Register Table
       const stepsTable = document.getElementById('steps-table-body');
-      stepsTable.innerHTML = state.steps.map(s => `
-        <tr>
-          <td>${s.order}</td>
-          <td><strong>${s.name}</strong></td>
-          <td>${s.role}</td>
-          <td>${s.workTime} min</td>
-          <td>${s.waitTime} min</td>
-          <td>${s.handoff || 'None'}</td>
-          <td>${s.evidence || 'Direct observation'}</td>
-        </tr>
-      `).join('');
-
-      // Render Observations Table
-      const obsTable = document.getElementById('obs-table-body');
-      obsTable.innerHTML = state.observations.map(o => {
-        const step = state.steps.find(s => s.id === o.stepId);
-        const stepLabel = step ? `${step.order}. ${step.name}` : 'Unlinked';
-        return `
+      if (state.steps.length === 0) {
+        stepsTable.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No process steps defined. Use the form above to add steps.</td></tr>`;
+      } else {
+        stepsTable.innerHTML = state.steps.map(s => `
           <tr>
-            <td><strong>${stepLabel}</strong></td>
-            <td>${o.category}<br><small style="color:var(--text-muted);">${o.tag}</small></td>
-            <td>${o.condition}</td>
-            <td>${o.effect}</td>
-            <td>${o.cause}</td>
-            <td><span class="badge badge-conf-${o.confidence.toLowerCase()}">${o.confidence}</span></td>
+            <td>${s.order}</td>
+            <td><strong>${s.name}</strong></td>
+            <td>${s.role}</td>
+            <td>${s.workTime} min</td>
+            <td>${s.waitTime} min</td>
+            <td>${s.handoff || '—'}</td>
+            <td>${s.evidence || 'Direct observation'}</td>
+            <td class="no-print">
+              <button class="btn btn-secondary" style="padding:0.2rem 0.5rem; font-size:0.75rem; color:var(--red-600);" onclick="deleteStep('${s.id}')">Delete</button>
+            </td>
           </tr>
-        `;
-      }).join('');
+        `).join('');
+      }
 
-      // Update Report elements
+      // 8. Render Waste Observations Register Table
+      const obsTable = document.getElementById('obs-table-body');
+      if (state.observations.length === 0) {
+        obsTable.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No waste observations recorded yet.</td></tr>`;
+      } else {
+        obsTable.innerHTML = state.observations.map(o => {
+          const step = state.steps.find(s => s.id === o.stepId);
+          const stepLabel = step ? `${step.order}. ${step.name}` : 'Unlinked';
+          return `
+            <tr>
+              <td><strong>${stepLabel}</strong></td>
+              <td>${o.category}<br><small style="color:var(--text-muted);">${o.tag}</small></td>
+              <td>${o.condition}</td>
+              <td>${o.effect || '—'}</td>
+              <td>${o.cause || '—'}</td>
+              <td><span class="badge badge-conf-${o.confidence.toLowerCase()}">${o.confidence}</span></td>
+              <td class="no-print">
+                <button class="btn btn-secondary" style="padding:0.2rem 0.5rem; font-size:0.75rem; color:var(--red-600);" onclick="deleteObservation('${o.id}')">Delete</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // 9. Render Opportunities Backlog
+      const oppsTable = document.getElementById('opps-table-body');
+      if (state.observations.length === 0) {
+        oppsTable.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Record observations to synthesize the improvement backlog.</td></tr>`;
+      } else {
+        oppsTable.innerHTML = state.observations.map(o => {
+          const prio = calculatePriority(o);
+          const hypothesis = o.cause ? `Address ${o.cause.toLowerCase()} to remove friction` : `Investigate underlying drivers for: ${o.condition}`;
+          return `
+            <tr>
+              <td><span class="badge ${prio.class}">${prio.label}</span></td>
+              <td><strong>${o.condition}</strong></td>
+              <td>${hypothesis}</td>
+              <td>${o.effect || 'Reduce cycle and queue delay'}</td>
+              <td>${o.confidence === "High" ? 'Direct verification' : 'Time study & log validation'}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // 10. Synthesize Executive Report
       document.getElementById('rep-efficiency').innerText = `${efficiency}%`;
       document.getElementById('rep-lead-time').innerText = `${totalElapsed} min`;
       document.getElementById('rep-wait-time').innerText = `${totalWait} min`;
+      
+      const reportPriorityContainer = document.getElementById('report-priority-targets');
+      if (state.observations.length === 0) {
+        reportPriorityContainer.innerHTML = `<p class="metric-meta">No assessment targets identified.</p>`;
+      } else {
+        reportPriorityContainer.innerHTML = state.observations.map((o, idx) => {
+          const step = state.steps.find(s => s.id === o.stepId);
+          const stepName = step ? `${step.order}. ${step.name}` : "General Flow";
+          return `
+            <div style="margin-bottom:0.75rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border-light);">
+              <div style="font-weight:700; font-size:0.85rem;">Target ${idx + 1}: ${stepName} — ${o.category}</div>
+              <div style="font-size:0.8rem; margin: 0.2rem 0;"><strong>Observed Friction:</strong> ${o.condition}</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">
+                <strong>Suspected Cause:</strong> ${o.cause || 'Under investigation'} | 
+                <strong>Operational Gain:</strong> ${o.effect || 'Eliminate wait time'}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
     }
 
     // Demo Scenario Loader
@@ -893,14 +1053,11 @@
         { id: "o2", stepId: "s2", category: "Extra processing", tag: "Duplicate data entry", confidence: "Medium", condition: "Approver manually re-enters cost center code into secondary spreadsheet", effect: "Consumes 8 minutes per batch", cause: "Two disconnected systems in use" }
       ];
 
+      saveState();
       renderAll();
     }
 
-    // Utility actions
-    function triggerPrint() {
-      window.print();
-    }
-
+    // CSV and Export Handlers
     function exportJSON() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -911,7 +1068,48 @@
       downloadAnchor.remove();
     }
 
-    // Initialization
+    function exportStepsCSV() {
+      if (state.steps.length === 0) {
+        alert("No process steps to export.");
+        return;
+      }
+      let csv = "Order,Step Name,Role,Processing Time (min),Waiting Time (min),Handoff,Evidence\n";
+      state.steps.forEach(s => {
+        csv += `"${s.order}","${s.name}","${s.role}",${s.workTime},${s.waitTime},"${s.handoff || ''}","${s.evidence || ''}"\n`;
+      });
+      triggerCSVDownload(csv, "process_steps.csv");
+    }
+
+    function exportObservationsCSV() {
+      if (state.observations.length === 0) {
+        alert("No waste observations to export.");
+        return;
+      }
+      let csv = "Step,Category,Secondary Tag,Condition,Operational Effect,Suspected Cause,Confidence\n";
+      state.observations.forEach(o => {
+        const step = state.steps.find(s => s.id === o.stepId);
+        const stepName = step ? step.name : "Unlinked";
+        csv += `"${stepName}","${o.category}","${o.tag}","${o.condition}","${o.effect || ''}","${o.cause || ''}","${o.confidence}"\n`;
+      });
+      triggerCSVDownload(csv, "waste_observations.csv");
+    }
+
+    function triggerCSVDownload(csvContent, fileName) {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    function triggerPrint() {
+      window.print();
+    }
+
+    // Initialize on Load
     window.addEventListener('DOMContentLoaded', () => {
       renderAll();
     });
