@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Change Impact Canvas | Harris Zahari</title>
+  <meta name="description" content="Map who is affected by a transformation, what changes, what evidence supports the assessment, and what action is required.">
+  <link rel="canonical" href="https://harriszahari.my/change-impact/">
+  <meta property="og:title" content="Change Impact Canvas | Harris Zahari">
+  <meta property="og:description" content="A practitioner-led change-impact assessment and decision-support tool.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://harriszahari.my/change-impact/">
+  <meta name="theme-color" content="#0b2138">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="./assets/change-impact.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header no-print">
+    <nav class="nav-wrap" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="Harris Zahari home"><strong>Harris Zahari</strong><span>Transformation Leadership</span></a>
+      <button class="nav-toggle" type="button" data-menu-button aria-label="Open menu" aria-expanded="false" aria-controls="main-menu"><span aria-hidden="true">Menu</span></button>
+      <div class="nav-links" id="main-menu" data-menu>
+        <a href="/">Portfolio</a>
+        <a href="/ai/">Applied AI</a>
+        <a href="/contact/">Contact</a>
+        <a class="btn btn-primary btn-small" href="#workspace">Open canvas</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="tool-hero no-print">
+      <div class="container tool-hero-grid">
+        <div>
+          <p class="eyebrow">Harris Zahari Transformation Tools</p>
+          <h1>Change Impact Canvas</h1>
+          <p class="lead">Map who is affected, what changes, what evidence supports the assessment, and what action is required before implementation.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#workspace">Start assessment</a>
+            <button class="btn btn-secondary" type="button" data-load-demo>Try demo</button>
+          </div>
+        </div>
+        <aside class="hero-principles" aria-label="Assessment principles">
+          <p class="eyebrow">Decision discipline</p>
+          <ul>
+            <li>Assess impact across six organizational dimensions.</li>
+            <li>Keep severity separate from evidence confidence.</li>
+            <li>Assign ownership for every material intervention.</li>
+            <li>Use the result as decision support, not prediction.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="privacy-strip no-print" aria-label="Privacy notice">
+      <div class="container privacy-inner">
+        <div><strong>Browser-only workspace</strong><span>Your assessment stays on this device. It is not sent to Harris Zahari or a server.</span></div>
+        <button class="text-button" type="button" data-open-privacy>Read data guidance</button>
+      </div>
+    </section>
+
+    <section class="tool-section" id="workspace">
+      <div class="tool-shell">
+        <aside class="tool-sidebar no-print" aria-label="Canvas sections">
+          <div class="project-identity">
+            <span>Current initiative</span>
+            <strong data-project-label>Untitled assessment</strong>
+          </div>
+          <nav class="tool-nav">
+            <button type="button" class="tool-nav-item active" data-view-target="overview" aria-current="page"><span>01</span>Overview</button>
+            <button type="button" class="tool-nav-item" data-view-target="register"><span>02</span>Impact register</button>
+            <button type="button" class="tool-nav-item" data-view-target="actions"><span>03</span>Actions</button>
+            <button type="button" class="tool-nav-item" data-view-target="report"><span>04</span>Executive report</button>
+          </nav>
+          <div class="sidebar-actions">
+            <button class="btn btn-secondary btn-block" type="button" data-edit-project>Project settings</button>
+            <button class="btn btn-secondary btn-block" type="button" data-load-demo>Try demo</button>
+          </div>
+        </aside>
+
+        <div class="tool-main">
+          <div class="tool-toolbar no-print">
+            <div class="save-state" role="status" aria-live="polite"><span class="save-dot"></span><span data-save-status>Saved locally</span></div>
+            <div class="toolbar-actions">
+              <label class="btn btn-secondary btn-small file-button">Import JSON<input type="file" accept="application/json,.json" data-import-file></label>
+              <button class="btn btn-secondary btn-small" type="button" data-export-json>Export JSON</button>
+              <button class="btn btn-secondary btn-small" type="button" data-export-csv>Export CSV</button>
+              <button class="btn btn-primary btn-small" type="button" data-add-impact>Add impact</button>
+            </div>
+          </div>
+
+          <div class="notice-region" aria-live="polite" data-notice-region></div>
+
+          <section class="tool-view active" data-view="overview" aria-labelledby="overview-title">
+            <div class="view-heading">
+              <div><p class="eyebrow">Leadership overview</p><h2 id="overview-title" data-overview-title>Untitled assessment</h2><p data-overview-context>No project details have been recorded.</p></div>
+              <button class="btn btn-secondary no-print" type="button" data-edit-project>Edit project</button>
+            </div>
+
+            <div class="summary-grid">
+              <article class="summary-card"><span>Total impacts</span><strong data-metric-total>0</strong><small>Affected groups recorded</small></article>
+              <article class="summary-card"><span>High or critical</span><strong data-metric-material>0</strong><small>Require structured response</small></article>
+              <article class="summary-card"><span>Evidence concern</span><strong data-metric-evidence>0</strong><small>Low, missing, or contradictory</small></article>
+              <article class="summary-card"><span>Without owner</span><strong data-metric-unowned>0</strong><small>Material impacts lacking accountability</small></article>
+            </div>
+
+            <div class="dashboard-grid">
+              <article class="workspace-panel heatmap-panel">
+                <div class="panel-heading"><div><h3>Impact heatmap</h3><p>Maximum supported impact by stakeholder group and dimension.</p></div><div class="severity-legend" aria-label="Impact severity legend"><span><i class="level-1"></i>Low</span><span><i class="level-2"></i>Moderate</span><span><i class="level-3"></i>High</span><span><i class="level-4"></i>Critical</span></div></div>
+                <div class="table-scroll"><table class="heatmap-table"><thead><tr><th>Stakeholder group</th><th>Process</th><th>Technology</th><th>Role</th><th>Skills</th><th>Behavior</th><th>Organization</th></tr></thead><tbody data-heatmap-body></tbody></table></div>
+                <div class="empty-state" data-heatmap-empty><strong>No impacts recorded</strong><p>Add an impact or load the demonstration case to build the heatmap.</p><button class="btn btn-primary no-print" type="button" data-add-impact>Add first impact</button></div>
+              </article>
+
+              <article class="workspace-panel attention-panel">
+                <div class="panel-heading"><div><h3>Leadership attention</h3><p>Highest-priority issues requiring decisions.</p></div></div>
+                <div data-attention-list></div>
+                <div class="empty-state compact" data-attention-empty><strong>No priority issues</strong><p>High and critical impacts will appear here.</p></div>
+              </article>
+            </div>
+
+            <article class="workspace-panel readiness-panel">
+              <div class="panel-heading"><div><h3>Implementation control</h3><p>Conditions to resolve before the planned implementation date.</p></div></div>
+              <div class="control-grid" data-control-grid></div>
+            </article>
+          </section>
+
+          <section class="tool-view" data-view="register" aria-labelledby="register-title">
+            <div class="view-heading">
+              <div><p class="eyebrow">Detailed assessment</p><h2 id="register-title">Impact register</h2><p>Each record represents one affected stakeholder group and one material change.</p></div>
+              <button class="btn btn-primary no-print" type="button" data-add-impact>Add impact</button>
+            </div>
+            <div class="filter-bar no-print">
+              <label class="filter-field"><span>Search</span><input type="search" placeholder="Group, business unit, change, owner" data-filter-search></label>
+              <label class="filter-field"><span>Severity</span><select data-filter-severity><option value="all">All levels</option><option value="Critical">Critical</option><option value="High">High</option><option value="Moderate">Moderate</option><option value="Low">Low</option></select></label>
+              <label class="filter-field"><span>Evidence</span><select data-filter-evidence><option value="all">All confidence</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option><option value="Contradictory">Contradictory</option><option value="Missing">Missing</option></select></label>
+            </div>
+            <div class="workspace-panel register-panel">
+              <div class="table-scroll"><table class="register-table"><thead><tr><th>Impact</th><th>Group</th><th>Severity</th><th>Evidence</th><th>Owner</th><th>Status</th><th class="no-print">Actions</th></tr></thead><tbody data-register-body></tbody></table></div>
+              <div class="empty-state" data-register-empty><strong>No matching impacts</strong><p>Add an impact or change the filters.</p></div>
+            </div>
+          </section>
+
+          <section class="tool-view" data-view="actions" aria-labelledby="actions-title">
+            <div class="view-heading"><div><p class="eyebrow">Implementation response</p><h2 id="actions-title">Actions and accountability</h2><p>Interventions are drawn directly from recorded impacts.</p></div></div>
+            <div class="workspace-panel register-panel">
+              <div class="table-scroll"><table class="register-table"><thead><tr><th>Action</th><th>Impact</th><th>Owner</th><th>Target</th><th>Status</th><th>Exposure</th></tr></thead><tbody data-actions-body></tbody></table></div>
+              <div class="empty-state" data-actions-empty><strong>No interventions recorded</strong><p>Add an intervention to an impact assessment.</p></div>
+            </div>
+          </section>
+
+          <section class="tool-view report-view" data-view="report" aria-labelledby="report-title">
+            <div class="view-heading no-print"><div><p class="eyebrow">Decision brief</p><h2 id="report-title">Executive report</h2><p>A printable summary of material impacts, evidence concerns, and required interventions.</p></div><button class="btn btn-primary" type="button" data-print-report>Print report</button></div>
+            <div class="report-document" data-report-document>
+              <div class="report-cover"><p>Change Impact Canvas</p><h2 data-report-project>Untitled assessment</h2><div class="report-meta" data-report-meta></div></div>
+              <section><h3>Executive assessment</h3><p data-report-summary>No impacts have been assessed.</p></section>
+              <section><h3>Leadership priorities</h3><ol data-report-priorities><li>No material impacts recorded.</li></ol></section>
+              <section><h3>Portfolio profile</h3><div class="report-profile" data-report-profile></div></section>
+              <section><h3>Material impact register</h3><div class="table-scroll"><table class="report-table"><thead><tr><th>Group and change</th><th>Severity</th><th>Evidence</th><th>Required response</th><th>Owner</th></tr></thead><tbody data-report-table></tbody></table></div></section>
+              <section class="report-disclosure"><h3>Method and limitation</h3><p>This report is a practitioner assessment based on the evidence recorded at the assessment date. Impact severity and evidence confidence are separate judgments. The canvas supports management decisions and does not predict transformation success.</p></section>
+              <footer class="report-footer"><span>Prepared using Change Impact Canvas</span><span>Harris Zahari Transformation Tools</span></footer>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="tool-dialog" data-project-dialog aria-labelledby="project-dialog-title">
+    <form method="dialog" data-project-form>
+      <div class="dialog-heading"><div><p class="eyebrow">Project setup</p><h2 id="project-dialog-title">Define the initiative</h2></div><button class="icon-button" type="button" aria-label="Close project settings" data-close-project>&times;</button></div>
+      <div class="form-grid">
+        <label class="field span-2"><span>Initiative name *</span><input name="name" required maxlength="120"></label>
+        <label class="field"><span>Client or organization</span><input name="client" maxlength="120" placeholder="Use an alias when appropriate"></label>
+        <label class="field"><span>Assessor</span><input name="assessor" maxlength="100"></label>
+        <label class="field"><span>Planned implementation date</span><input name="implementationDate" type="date"></label>
+        <label class="field"><span>Assessment date</span><input name="assessmentDate" type="date"></label>
+        <label class="field span-2"><span>Business objective *</span><textarea name="objective" required maxlength="600"></textarea></label>
+        <label class="field span-2"><span>Scope</span><textarea name="scope" maxlength="600"></textarea></label>
+      </div>
+      <p class="form-guidance">Client names are stored only in this browser and in files you choose to export. Avoid sensitive personal or commercially restricted information.</p>
+      <div class="dialog-actions"><button class="btn btn-secondary" type="button" data-close-project>Cancel</button><button class="btn btn-primary" type="submit">Save project</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="tool-dialog impact-dialog" data-impact-dialog aria-labelledby="impact-dialog-title">
+    <form method="dialog" data-impact-form>
+      <div class="dialog-heading"><div><p class="eyebrow">Impact assessment</p><h2 id="impact-dialog-title" data-impact-dialog-title>Add impact</h2></div><button class="icon-button" type="button" aria-label="Close impact form" data-close-impact>&times;</button></div>
+      <input type="hidden" name="id">
+      <div class="form-section"><h3>Who is affected?</h3><div class="form-grid">
+        <label class="field"><span>Business unit *</span><input name="businessUnit" required maxlength="100"></label>
+        <label class="field"><span>Stakeholder group *</span><input name="stakeholderGroup" required maxlength="120"></label>
+        <label class="field"><span>Role</span><input name="role" maxlength="120"></label>
+        <label class="field"><span>Approximate population</span><input name="population" type="number" min="0" max="10000000"></label>
+        <label class="field"><span>Location</span><input name="location" maxlength="120"></label>
+        <label class="field"><span>Impact date</span><input name="impactDate" type="date"></label>
+      </div></div>
+      <div class="form-section"><h3>What changes?</h3><div class="form-grid">
+        <label class="field span-2"><span>Current state *</span><textarea name="currentState" required maxlength="800"></textarea></label>
+        <label class="field span-2"><span>Future state *</span><textarea name="futureState" required maxlength="800"></textarea></label>
+        <label class="field span-2"><span>Impact statement *</span><textarea name="impactStatement" required maxlength="800" placeholder="Describe the practical change for this group."></textarea></label>
+      </div></div>
+      <fieldset class="form-section"><legend>How significant is the impact?</legend><p class="form-guidance">Use 0 for no material change and 4 for a fundamental change.</p><div class="dimension-grid" data-dimension-grid></div><div class="classification-preview"><span>Suggested classification</span><strong data-suggested-severity>Low</strong><small data-severity-reason>Complete the six dimensions.</small></div></fieldset>
+      <div class="form-section"><h3>What supports the assessment?</h3><div class="form-grid">
+        <label class="field"><span>Evidence confidence *</span><select name="evidenceConfidence" required><option value="">Select confidence</option><option>High</option><option>Medium</option><option>Low</option><option>Contradictory</option><option>Missing</option></select></label>
+        <label class="field"><span>Evidence source</span><input name="evidenceSource" maxlength="200" placeholder="Approved design, owner interview, process document"></label>
+        <label class="field span-2"><span>Evidence and assumptions *</span><textarea name="evidence" required maxlength="1000"></textarea></label>
+        <label class="field"><span>Override classification</span><select name="severityOverride"><option value="">Use suggested classification</option><option>Low</option><option>Moderate</option><option>High</option><option>Critical</option></select></label>
+        <label class="field"><span>Override rationale</span><input name="overrideRationale" maxlength="300"></label>
+      </div></div>
+      <div class="form-section"><h3>What response is required?</h3><div class="form-grid">
+        <label class="field span-2"><span>Intervention *</span><textarea name="intervention" required maxlength="800"></textarea></label>
+        <label class="field"><span>Accountable owner</span><input name="owner" maxlength="120"></label>
+        <label class="field"><span>Target date</span><input name="targetDate" type="date"></label>
+        <label class="field"><span>Status</span><select name="status"><option>Open</option><option>Validated</option><option>In progress</option><option>Addressed</option><option>Monitored</option></select></label>
+      </div></div>
+      <p class="validation-message" role="alert" data-impact-validation></p>
+      <div class="dialog-actions"><button class="btn btn-secondary" type="button" data-close-impact>Cancel</button><button class="btn btn-primary" type="submit">Save impact</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="tool-dialog compact-dialog" data-privacy-dialog aria-labelledby="privacy-dialog-title">
+    <div class="dialog-heading"><div><p class="eyebrow">Data guidance</p><h2 id="privacy-dialog-title">Use client information carefully</h2></div><button class="icon-button" type="button" aria-label="Close data guidance" data-close-privacy>&times;</button></div>
+    <ul class="guidance-list"><li>Information is saved in this browser using local storage.</li><li>The website does not send assessment data to a server.</li><li>Exported JSON and CSV files are controlled by the person downloading them.</li><li>Use client aliases when confidentiality requirements apply.</li><li>Do not enter personal, classified, legally privileged, or commercially restricted information.</li></ul>
+    <div class="danger-zone"><div><strong>Delete this browser's assessment</strong><p>This removes the current project and all impact records from this browser.</p></div><button class="btn btn-secondary" type="button" data-clear-data>Delete local data</button></div>
+    <div class="dialog-actions"><button class="btn btn-primary" type="button" data-close-privacy>Understood</button></div>
+  </dialog>
+
+  <footer class="site-footer no-print"><div class="container footer-grid"><div><strong>Harris Zahari</strong><br>Enterprise Transformation and Operational Excellence</div><div class="footer-links"><a href="/">Portfolio</a><a href="/contact/">Contact</a><span>Browser-only decision support</span></div></div><div class="container"><p class="disclosure">Copyright <span data-year></span> Mohd Harris bin Zahari.</p></div></footer>
+  <script src="/assets/site.js" defer></script>
+  <script src="./assets/change-impact.js" defer></script>
+</body>
+</html>
